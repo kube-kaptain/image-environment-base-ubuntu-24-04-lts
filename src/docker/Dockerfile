@@ -20,6 +20,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get dist-upgrade -y
 RUN apt-get install \
+    age \
     ca-certificates \
     curl \
     dnsutils \

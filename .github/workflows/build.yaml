@@ -2,9 +2,9 @@ name: Dockerfile Build
 
 on:
   push:
-    branches: [main]
+    branches: [main-1.33]
   pull_request:
-    branches: [main]
+    branches: [main-1.33]
 
 jobs:
   build:
@@ -16,3 +16,4 @@ jobs:
     with:
       tag-version-calculation-strategy: 'file-pattern-match'
       tag-version-pattern-type: 'dockerfile-env-kubectl'
+      additional-release-branches: 'main-1.33'
