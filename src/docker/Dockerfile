@@ -2,11 +2,11 @@ FROM ubuntu:noble-20260113
 # Always use the most specific tag possible
 
 # Key tools apt can't provide
-ENV KUBECTL_VERSION=1.34.3
+ENV KUBECTL_VERSION=1.35.0
 ENV YQ4_VERSION=4.50.1
 
 # Strong checksums to match the above
-ENV KUBECTL_SHA512=6e6011b64bacce24d0c63e92e97e6125bfadfe16352cc0bf96497dc41881c485817b299fa3efd95d3e6744c47ce6e2c4496f28c240545b441596de9f1b126b29
+ENV KUBECTL_SHA512=6e409beaa9bde9c2ad9f431b260a16c70ee9dee33377b33c4d9c39a36f2005955f0bfc2e8cdacf30646a50c236a30e6dabb4b7d9d4acf11ba16cc55f47ec7d67
 ENV YQ4_SHA512=b1043cf55e440e7bd45c9c74b7bd2cdac76bbe9d6de6aff5eaa41159cc6c20c9225d9f7a80874f124a3e55b5732303e6f6164ed7aa7d32fa0d4077cb261782ce
 
 # Leave a trail of breadcrumbs
