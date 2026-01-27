@@ -23,9 +23,11 @@ RUN apt-get install \
     age \
     ca-certificates \
     curl \
+    debianutils \
     dnsutils \
     iputils-ping \
     netcat-openbsd \
+    openssl \
     procps \
     time \
     -y --no-install-recommends
