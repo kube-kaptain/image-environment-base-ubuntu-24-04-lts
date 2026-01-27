@@ -4,10 +4,12 @@ FROM ubuntu:noble-20260113
 # Key tools apt can't provide
 ENV KUBECTL_VERSION=1.35.0
 ENV YQ4_VERSION=4.50.1
+ENV AGE_VERSION=1.3.1
 
 # Strong checksums to match the above
 ENV KUBECTL_SHA512=6e409beaa9bde9c2ad9f431b260a16c70ee9dee33377b33c4d9c39a36f2005955f0bfc2e8cdacf30646a50c236a30e6dabb4b7d9d4acf11ba16cc55f47ec7d67
 ENV YQ4_SHA512=b1043cf55e440e7bd45c9c74b7bd2cdac76bbe9d6de6aff5eaa41159cc6c20c9225d9f7a80874f124a3e55b5732303e6f6164ed7aa7d32fa0d4077cb261782ce
+ENV AGE_SHA512=425e3f7bcd3bee2ac5e356d45f86b208a15a4ddf0c5fe512047fbe08d77a4b957b3c5db699c49c281bd20f8bc1e76ab93753ab99593ff747742808769dccc070
 
 # Leave a trail of breadcrumbs
 LABEL base.project.name="${ProjectName}"
@@ -20,7 +22,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get dist-upgrade -y
 RUN apt-get install \
-    age \
     ca-certificates \
     curl \
     debianutils \
@@ -45,6 +46,13 @@ RUN curl -sLo /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/downlo
 RUN sha512sum /usr/local/bin/yq
 RUN echo "${YQ4_SHA512}  /usr/local/bin/yq" | sha512sum -c -
 RUN chmod +x /usr/local/bin/yq
+
+# Install age (pinned version, not from distro repos)
+RUN curl -sLo /tmp/age.tar.gz "https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-amd64.tar.gz"
+RUN sha512sum /tmp/age.tar.gz
+RUN echo "${AGE_SHA512}  /tmp/age.tar.gz" | sha512sum -c -
+RUN tar xzf /tmp/age.tar.gz -C /usr/local/bin --strip-components=1 age/age age/age-keygen
+RUN rm /tmp/age.tar.gz
 
 # Create deployment user
 RUN mkdir -p /home/kaptain
