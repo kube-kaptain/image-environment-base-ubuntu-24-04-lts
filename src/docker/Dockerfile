@@ -1,15 +1,21 @@
 FROM ubuntu:noble-20260113
 # Always use the most specific tag possible
 
+# Architecture from build system (used for binary downloads)
+ARG DOCKER_PLATFORM_CPU_ARCHITECTURE
+
 # Key tools apt can't provide
 ENV KUBECTL_VERSION=1.35.0
 ENV YQ4_VERSION=4.50.1
 ENV AGE_VERSION=1.3.1
 
-# Strong checksums to match the above
-ENV KUBECTL_SHA512=6e409beaa9bde9c2ad9f431b260a16c70ee9dee33377b33c4d9c39a36f2005955f0bfc2e8cdacf30646a50c236a30e6dabb4b7d9d4acf11ba16cc55f47ec7d67
-ENV YQ4_SHA512=b1043cf55e440e7bd45c9c74b7bd2cdac76bbe9d6de6aff5eaa41159cc6c20c9225d9f7a80874f124a3e55b5732303e6f6164ed7aa7d32fa0d4077cb261782ce
-ENV AGE_SHA512=425e3f7bcd3bee2ac5e356d45f86b208a15a4ddf0c5fe512047fbe08d77a4b957b3c5db699c49c281bd20f8bc1e76ab93753ab99593ff747742808769dccc070
+# Strong checksums to match the above (per architecture)
+ENV KUBECTL_SHA512_amd64=6e409beaa9bde9c2ad9f431b260a16c70ee9dee33377b33c4d9c39a36f2005955f0bfc2e8cdacf30646a50c236a30e6dabb4b7d9d4acf11ba16cc55f47ec7d67
+ENV KUBECTL_SHA512_arm64=2fa56b11bfd532e6add84d13e52432fff185585db68f301b93144528f06f0c9669535ccc485a1859869724842f95cee79e702fcb0bfbcf1773e0edea5c2257a9
+ENV YQ4_SHA512_amd64=b1043cf55e440e7bd45c9c74b7bd2cdac76bbe9d6de6aff5eaa41159cc6c20c9225d9f7a80874f124a3e55b5732303e6f6164ed7aa7d32fa0d4077cb261782ce
+ENV YQ4_SHA512_arm64=b7b71e9911eb39594aca025f211de2790ba795690b5ac9e26db951f24f1b0bb1358ef7f1b3b6b5bbf4c276e251e906cab6138b621d49803a946f8566ce3c6b01
+ENV AGE_SHA512_amd64=425e3f7bcd3bee2ac5e356d45f86b208a15a4ddf0c5fe512047fbe08d77a4b957b3c5db699c49c281bd20f8bc1e76ab93753ab99593ff747742808769dccc070
+ENV AGE_SHA512_arm64=7f7920f5f199e46b568bec464e870fd61baae67140ddb5ed104c458ee89cdfbb7c4f48873cfa73c1218dc2a023227e7bacf635480e678a480aeac04e0f330b1f
 
 # Leave a trail of breadcrumbs
 LABEL base.project.name="${ProjectName}"
@@ -36,21 +42,24 @@ RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install kubectl
-RUN curl -sLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+RUN curl -sLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${DOCKER_PLATFORM_CPU_ARCHITECTURE}/kubectl"
 RUN sha512sum /usr/local/bin/kubectl
-RUN echo "${KUBECTL_SHA512}  /usr/local/bin/kubectl" | sha512sum -c -
+RUN eval CHECKSUM=\$KUBECTL_SHA512_${DOCKER_PLATFORM_CPU_ARCHITECTURE} && \
+    echo "${CHECKSUM}  /usr/local/bin/kubectl" | sha512sum -c -
 RUN chmod +x /usr/local/bin/kubectl
 
 # Install yq 4
-RUN curl -sLo /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/v${YQ4_VERSION}/yq_linux_amd64"
+RUN curl -sLo /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/v${YQ4_VERSION}/yq_linux_${DOCKER_PLATFORM_CPU_ARCHITECTURE}"
 RUN sha512sum /usr/local/bin/yq
-RUN echo "${YQ4_SHA512}  /usr/local/bin/yq" | sha512sum -c -
+RUN eval CHECKSUM=\$YQ4_SHA512_${DOCKER_PLATFORM_CPU_ARCHITECTURE} && \
+    echo "${CHECKSUM}  /usr/local/bin/yq" | sha512sum -c -
 RUN chmod +x /usr/local/bin/yq
 
 # Install age (pinned version, not from distro repos)
-RUN curl -sLo /tmp/age.tar.gz "https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-amd64.tar.gz"
+RUN curl -sLo /tmp/age.tar.gz "https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-${DOCKER_PLATFORM_CPU_ARCHITECTURE}.tar.gz"
 RUN sha512sum /tmp/age.tar.gz
-RUN echo "${AGE_SHA512}  /tmp/age.tar.gz" | sha512sum -c -
+RUN eval CHECKSUM=\$AGE_SHA512_${DOCKER_PLATFORM_CPU_ARCHITECTURE} && \
+    echo "${CHECKSUM}  /tmp/age.tar.gz" | sha512sum -c -
 RUN tar xzf /tmp/age.tar.gz -C /usr/local/bin --strip-components=1 age/age age/age-keygen
 RUN rm /tmp/age.tar.gz
 
