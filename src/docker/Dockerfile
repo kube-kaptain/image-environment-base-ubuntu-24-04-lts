@@ -71,10 +71,14 @@ RUN useradd -u ${KAPTAIN_USER_ID} -g kaptain -d /home/kaptain -s /bin/bash kapta
 RUN chown kaptain:kaptain /home/kaptain
 
 # Create directory structure for deployment needs
-RUN mkdir -p /kd/bin        # Deployment scripts
-RUN mkdir -p /kd/manifests  # Env declaration manifests
-RUN mkdir -p /kd/secrets    # Encrypted secret values
-RUN mkdir -p /kd/work       # Working dir for processing, logging, etc
+RUN mkdir -p /kd/bin                       # Deployment scripts
+RUN mkdir -p /kd/manifests                 # Env declaration manifests
+RUN mkdir -p /kd/cluster-scoped-on-behalf  # Delegated cluster-scoped resources (dual use)
+RUN mkdir -p /kd/secrets                   # Encrypted secret values
+RUN mkdir -p /kd/work                      # Working dir for processing, logging, etc
+# cluster-scoped-on-behalf dual use: env images hold their own delegated set
+# flat (reference only, ignored by the env deploy); rp images hold one run-*
+# subdir per delegating child, each applied on that child's behalf.
 
 # Put the deploy scripts on the path so we can run them naturally
 ENV PATH="/kd/bin:${PATH}"
