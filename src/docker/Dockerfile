@@ -8,6 +8,7 @@ ARG DOCKER_PLATFORM_CPU_ARCHITECTURE
 ENV KUBECTL_VERSION=1.32.11
 ENV YQ4_VERSION=4.50.1
 ENV AGE_VERSION=1.3.1
+ENV JV_VERSION=6.0.3
 
 # Strong checksums to match the above (per architecture)
 ENV KUBECTL_SHA512_amd64=dd0aa1ade8e93cbf0ab0310d7e63600354e1b8057c0bde1300a0d37d4afa0fd3de757c59e6646e59cf7e46a8275d0dc58548c0f90f7f402168cec3371bed3706
@@ -16,6 +17,8 @@ ENV YQ4_SHA512_amd64=b1043cf55e440e7bd45c9c74b7bd2cdac76bbe9d6de6aff5eaa41159cc6
 ENV YQ4_SHA512_arm64=b7b71e9911eb39594aca025f211de2790ba795690b5ac9e26db951f24f1b0bb1358ef7f1b3b6b5bbf4c276e251e906cab6138b621d49803a946f8566ce3c6b01
 ENV AGE_SHA512_amd64=425e3f7bcd3bee2ac5e356d45f86b208a15a4ddf0c5fe512047fbe08d77a4b957b3c5db699c49c281bd20f8bc1e76ab93753ab99593ff747742808769dccc070
 ENV AGE_SHA512_arm64=7f7920f5f199e46b568bec464e870fd61baae67140ddb5ed104c458ee89cdfbb7c4f48873cfa73c1218dc2a023227e7bacf635480e678a480aeac04e0f330b1f
+ENV JV_SHA512_amd64=c2ca33588b399b14fc24d28c80c19dadfff1ec85c4289c598e1ecc5506fa474474b04dacf8befe138307e081e037c676e46bae79aae977a0320d797ec9c7cd0e
+ENV JV_SHA512_arm64=8bc82ddf96661b73e6da4bfc77933beae13808a312011c6afc38ee9ce2293269bb03a08f5d28b4d0dcf064f769e11e68bb95577bf5374cde44ee38694654431f
 
 # Leave a trail of breadcrumbs
 LABEL base.project.name="${ProjectName}"
@@ -62,6 +65,14 @@ RUN eval CHECKSUM=\$AGE_SHA512_${DOCKER_PLATFORM_CPU_ARCHITECTURE} && \
     echo "${CHECKSUM}  /tmp/age.tar.gz" | sha512sum -c -
 RUN tar xzf /tmp/age.tar.gz -C /usr/local/bin --strip-components=1 age/age age/age-keygen
 RUN rm /tmp/age.tar.gz
+
+# Install jv (JSON schema validator)
+RUN curl -sLo /tmp/jv.tar.gz "https://github.com/santhosh-tekuri/jsonschema/releases/download/v${JV_VERSION}/jv-v${JV_VERSION}-linux-${DOCKER_PLATFORM_CPU_ARCHITECTURE}.tar.gz"
+RUN sha512sum /tmp/jv.tar.gz
+RUN eval CHECKSUM=\$JV_SHA512_${DOCKER_PLATFORM_CPU_ARCHITECTURE} && \
+    echo "${CHECKSUM}  /tmp/jv.tar.gz" | sha512sum -c -
+RUN tar xzf /tmp/jv.tar.gz -C /usr/local/bin jv
+RUN rm /tmp/jv.tar.gz
 
 # Create deployment user
 ENV KAPTAIN_USER_ID=4242
