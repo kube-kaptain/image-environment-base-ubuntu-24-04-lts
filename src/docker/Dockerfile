@@ -94,6 +94,11 @@ RUN mkdir -p /kd/work                      # Working dir for processing, logging
 # Put the deploy scripts on the path so we can run them naturally
 ENV PATH="/kd/bin:${PATH}"
 
+# Where the notify plugins find their config, secrets and per-run state
+ENV NOTIFY_WORK_BASE="/kd/work"
+ENV NOTIFY_CONFIG_BASE="/configmap"
+ENV NOTIFY_SECRETS_BASE="/secret"
+
 # Make the working dir writeable and set it as the workdir
 RUN chown kaptain:kaptain /kd/work
 WORKDIR /kd/work
